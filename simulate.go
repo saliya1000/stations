@@ -112,6 +112,31 @@ func ScheduleTrains(network Network, start, end string, numTrains int) ([]string
 	minTurns := CalculateMinTurns(disjointPaths, numTrains)
 	assignments := CreateTrainAssignments(disjointPaths, numTrains, minTurns)
 
+	uniquePathIndices := make(map[int]bool)
+	for _, assignment := range assignments {
+		uniquePathIndices[assignment.PathIndex] = true
+	}
+	fmt.Printf("Number of distinct paths used by trains: %d\n", len(uniquePathIndices))
+
+	if len(uniquePathIndices) > 0 {
+		fmt.Println("Details of used paths:")
+		sortedPathIndices := make([]int, 0, len(uniquePathIndices))
+		for index := range uniquePathIndices {
+			sortedPathIndices = append(sortedPathIndices, index)
+		}
+		sort.Ints(sortedPathIndices) // Sort the indices for consistent output
+
+		for _, pathIndex := range sortedPathIndices {
+			// It's good practice to check if pathIndex is within bounds of disjointPaths
+			if pathIndex >= 0 && pathIndex < len(disjointPaths) {
+				fmt.Printf("  - Path %d: %v\n", pathIndex, disjointPaths[pathIndex])
+			} else {
+				// This case should ideally not happen if logic is correct, but good for robustness
+				fmt.Printf("  - Error: Invalid path index %d encountered\n", pathIndex)
+			}
+		}
+	}
+
 	trains := make([]*Train, len(assignments))
 	for i, assignment := range assignments {
 		trains[i] = &Train{
