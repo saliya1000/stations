@@ -46,6 +46,12 @@ func ParseNetworkFile(filename string) (*Network, error) {
 			parts := strings.Split(line, ",")
 			if len(parts) >= 3 {
 				name := strings.TrimSpace(parts[0])
+
+				// Check for duplicate station name
+				if _, exists := network.Stations[name]; exists {
+					return nil, NewValidationError("duplicate_station_name", name)
+				}
+
 				xStr := strings.TrimSpace(parts[1])
 				yStr := strings.TrimSpace(parts[2])
 
@@ -94,7 +100,7 @@ func ParseNetworkFile(filename string) (*Network, error) {
 
 				// Check for duplicate connection
 				if connectionSet[connectionKey] {
-					return nil, fmt.Errorf("duplicate connection found between '%s' and '%s'", a, b)
+					return nil, NewValidationError("duplicate_connection", a, b)
 				}
 				connectionSet[connectionKey] = true
 
